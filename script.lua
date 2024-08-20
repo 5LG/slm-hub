@@ -55,8 +55,10 @@ local JumpSlider = PlayerTab:CreateSlider({
    end,
 })
 
-local Toggle = PlayerTab:CreateToggle({
-   Name = "FLY: Press E",
+--------------------------------------------- Fly
+
+local FlyToggle = PlayerTab:CreateToggle({
+   Name = "FLY: Press E (NEW, BETA)",
    CurrentValue = false,
    Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
@@ -73,7 +75,7 @@ local Toggle = PlayerTab:CreateToggle({
         local ctrl = {f = 0, b = 0, l = 0, r = 0} 
         local lastctrl = {f = 0, b = 0, l = 0, r = 0} 
         local maxspeed = 50 
-        local speed = 15
+        local speed = 30
 
         function Fly() 
         local bg = Instance.new("BodyGyro", torso) 
@@ -144,4 +146,62 @@ local Toggle = PlayerTab:CreateToggle({
         Fly()
     end
    end,
+})
+
+---------------------------- esp
+
+local EspToggle = PlayerTab:CreateToggle({
+    Name = "ESP (NEW)",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        if Value == true then
+            local function addHighlightToPlayer(player)
+                local character = player.Character
+                if character then
+                    if not character:FindFirstChild("Highlight") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                        highlight.Parent = character
+                    end
+                end
+            end
+
+            -- Add highlights to all existing players
+            for _, player in pairs(game.Players:GetPlayers()) do
+                addHighlightToPlayer(player)
+            end
+
+            -- Connect to players who join later
+            game.Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function()
+                    addHighlightToPlayer(player)
+                end)
+            end)
+
+        elseif Value == false then
+            local function removeHighlightFromPlayer(player)
+                local character = player.Character
+                if character then
+                    local highlight = character:FindFirstChild("Highlight")
+                    if highlight then
+                        highlight:Destroy()
+                    end
+                end
+            end
+
+            -- Remove highlights from all existing players
+            for _, player in pairs(game.Players:GetPlayers()) do
+                removeHighlightFromPlayer(player)
+            end
+
+            -- Remove highlights for players who join later
+            game.Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function()
+                    removeHighlightFromPlayer(player)
+                end)
+            end)
+        end
+    end
 })
